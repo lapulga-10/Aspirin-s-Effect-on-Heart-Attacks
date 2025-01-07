@@ -1,0 +1,222 @@
+---
+title: "Project 3"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+date: "2024-05-15"
+---
+
+```{r setup, include=TRUE}
+
+rm(list = ls())
+
+# directory
+setwd("C:/Users/rahul/OneDrive/Desktop/Notes/SS-24/ICS/Project_3")
+
+# Load required libraries
+library(dplyr)
+library(ggplot2)
+library(epitools)
+
+
+# Load the dataset
+dataset <- read.csv("Aspirin.csv", sep=";", header=TRUE)[,-1]
+
+names(dataset)[3] <- "Smoking"
+
+## Convert it to as factor 
+dataset$Group <- as.factor(dataset$Group)
+dataset$HeartAttack <- as.factor(dataset$HeartAttack)
+
+
+dataset$Smoking[dataset$Smoking == "Yes"] <- "Smoker"
+dataset$Smoking[dataset$Smoking == "No"] <- "Non-Smoker"
+
+dataset$Smoking <- as.factor(dataset$Smoking)
+
+
+
+
+str(dataset)
+## Since only 5 unique values 
+unique(dataset$Age)
+
+# hence can be converted in factor too
+dataset$Age <- as.factor(dataset$Age)
+
+# Summary statistics
+summary(dataset)
+
+dim(dataset)
+# Display the data in a table format
+head(dataset)
+
+
+```
+
+
+## Group causing Heart attack
+```{r Group}
+
+##-------------- Contingency Table --------------------------
+
+# Freq. dist.
+( table.group <- table(dataset$Group, dataset$HeartAttack) )
+
+# Freq. dist. + Sum
+( table.group.sum <- addmargins(table.group) )
+
+# rel. freq.
+( table.rel.group <- prop.table(table.group) )
+
+# rel. freq. + SUm
+( table.rel.group.sum <- addmargins(table.rel.group) ) 
+
+## Proportion of heart attack in Aspirin (the rate)
+(232/9987)*100
+(559/10034)*100
+
+
+
+##-------------- Joint Bar Plots ------------------------- 
+
+# Group barplot
+ggplot(data = dataset, aes(x = Group, fill = HeartAttack)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "dodge") +
+  labs(y = "Relative Frequency") +
+  scale_fill_manual(values = c("green", "red")) +
+  theme_minimal() 
+
+# Smoking barplot
+ggplot(data = dataset, aes(x = Smoking, fill = HeartAttack)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "dodge") +
+  labs(y = "Relative Frequency") +
+  scale_fill_manual(values = c("green", "red")) +
+  theme_minimal() 
+
+# Age barplot
+ggplot(data = dataset, aes(x = Age, fill = HeartAttack)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)), position = "dodge") +
+  labs(y = "Relative Frequency") +
+  scale_fill_manual(values = c("green", "red")) +
+  theme_minimal() 
+
+## Risk Ratio for Group ==========================================
+RR_group <- epitools::riskratio(table.group, rev = "rows", 
+                                correction = FALSE, method = "wald", 
+                                conf.level = 0.95)$measure
+RR_group
+
+
+## Odds Ratio
+OR_group <- epitools::oddsratio(table.group, rev = "rows", 
+                                correction = FALSE, method = "wald", 
+                                conf.level = 0.95)$measure
+OR_group
+
+
+## Chi square test for independence
+chisq.test(table.group, correct = FALSE)
+
+
+```
+```{r EXTRA, include=FALSE}
+
+
+## XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# mosaicplot(x = table.group, color = c(3,2), main = "Contingency Table",
+#            xlab = "Group", ylab = "HeartAttack")
+
+
+# Contingency Table
+# table.group
+# 
+# ## Treatment Group
+# a.y <- table.group[1,2]
+# a.n <- table.group[1,1]
+# 
+# # Control Group
+# p.y <- table.group[2,1]
+# P.n <- table.group[2,2]
+# 
+# ## Risk ratio
+# Risk_Aspirin <- a.y / (a.n + a.y)
+# Risk_Placebo <- p.y / (p.n + p.y)
+# RR_group <- Risk_Aspirin / Risk_Placebo
+# SE <- sqrt((1 / a.y) + (1 / p.y) - (1 / (a.y + a.n)) - (1 / (p.y + p.n)))
+# # C I for RR
+# log_RR <- log(RR_group)
+# CI_log_lower <- log_RR - 1.96 * SE
+# CI_log_upper <- log_RR + 1.96 * SE
+# 
+# CI_lower <- exp(CI_log_lower)
+# CI_upper <- exp(CI_log_upper)
+
+## XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+
+# a.n <- 9755; a.y <- 232; 
+# p.n <- 9475; p.y <- 559
+# 
+# RR <- (a.y/(a.y+a.n)) / (p.y/(p.y+p.n))
+# OR <- (a.yes/a.no) / (p.yes/p.no)
+# 
+# 
+# 
+# e.a.n <- 19230 * (9987/20021); e.a.y <- 791 * (9987/20021);
+# e.p.n <- 19230 * (10034/20021); e.p.y <- 791 * (10034/20021)
+# 
+# a_n <- (a.n - e.a.n)^2 / e.a.n
+# a_y <- (a.y - e.a.y)^2 / e.a.y
+# p_n <- (p.n - e.p.n)^2 / e.p.n
+# p_y <- (p.y - e.p.y)^2 / e.p.y
+# 
+# # Chi-squared
+# x_2 <- a_n + a_y + p_n + p_y 
+
+```
+
+## Smoking and Heart attack
+
+```{r Smoking}
+# Freq. dist. Contingency Table
+( table.smoking <- table(dataset$Smoking, dataset$HeartAttack) )
+
+# Freq. dist. Contingency Table Sum
+( table.smoking.sum <- addmargins(table.smoking) )
+
+# rel. freq. Contingency Table
+( table.rel.smoking <- prop.table(table.smoking) )
+
+# rel. freq. Contingency Table SUm
+( table.rel.smoking.sum <- addmargins(table.rel.smoking) ) 
+
+## Proportion of heart attack in (the rate)
+(497/15992)*100 #Non-Smoker
+(294/3732)*100 #Smoker
+
+
+
+## Risk ratio for Smoker ======================================
+RR_smoking <- riskratio(table.smoker, rev = "rows", correction = FALSE,
+                      method = "wald", conf.level = 0.95)$measure
+RR_smoking
+
+## Odds Ratio
+OR_smoking <- oddsratio(table.smoking, rev = "rows", correction = FALSE,
+                      method = "wald", conf.level = 0.95)$measure
+OR_smoking
+
+
+## Chi square test for independence
+chisq.test(table.smoking, correct = FALSE)
+
+```
+
+
+
+
