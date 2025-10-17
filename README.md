@@ -39,3 +39,14 @@ The analysis was conducted using **R** with the following libraries:
 - `epitools`: Handling contingency tables
 - `dplyr`: Data manipulation
 - `ggplot2`: Data visualization
+
+
+
+*Summary* 
+- Analyzed contingency tables to compare heart attack incidence between aspirin and placebo groups.
+
+- Found aspirin users had nearly half the heart attack rate (2.3% vs 5.6%) compared to placebo.
+
+- Estimated a Risk Ratio of 0.42 and Odds Ratio of 0.40, indicating a ~58–60% reduction in risk and odds.
+
+- Performed a chi-squared test (p < 2.2×10⁻¹⁶), confirming a significant association between aspirin use and reduced heart attack incidence.
